@@ -1,0 +1,79 @@
+const initTabulator = (tenantId = getSelectedTenantId(), tblId, url, columns, ajaxConfig = AjaxConfigDefault, ajaxContentType = RequestContentType.json) => {
+    tableTabulator = new Tabulator(
+        tblId,
+        {
+            ajaxURL: url,
+
+            //ajax setup
+            ajaxParams: {
+                currentPage: 1,
+                pageSize: 50,
+                usedState: -1,// take both 1 and 0              
+                name: "",
+                tenantId: tenantId,
+            },
+            ajaxConfig: ajaxConfig,
+            ajaxContentType: ajaxContentType,
+            //pagination setup
+            pagination: "remote",   
+            //      enable remote pagination
+            locale: "vi",
+            paginationDataReceived: {
+                "data": "result",                                   //      change data parameter name to "result"
+                "current_page": "currentPage",
+            },
+            paginationSize: 50,
+            paginationSizeSelector: [50, 100, 200],                 //      enable page size select element and generate list options
+            paginationButtonCount: 5,
+            paginationDataSent: {                                   //      alternative parameter names 
+                "page": "currentPage",                              //      the page number being requested
+                "size": "pageSize",                                 //      the number of rows to a page (if paginationSize is set)
+            },
+            pageLoaded: pageno => {                                 //      pageno - the number of the loaded page
+                const cbxAll = $("#select-all");                    //console.log(tableTabulator.getData());
+
+                if (cbxAll === null || cbxAll == undefined) return;
+
+                cbxAll.prop("checked", false);                      //      uuncheck the select-all cbx
+            },
+
+            virtualDom: true,
+            virtualDomBuffer: 300,
+
+            //    Layout setup for table
+            tooltips: true,
+            height: heightTable,
+            maxHeight: "100%",
+            layout: "fitColumns",
+            columns: columns,
+            ajaxLoaderLoading: `<div class="spinner-border text-primary m-2" role="status"><span class="sr-only">Loading...</span ></div >`,
+            langs: {
+                vi: {
+                    ajax: {
+                        loading: "Đang tải", //ajax loader text
+                        error: "Có lỗi xảy ra!", //ajax error text
+                    },
+                    pagination: {
+                        first: "Đầu", //text for the first page button
+                        first_title: "Đi đến trang đầu tiên", //tooltip text for the first page button
+                        last: "Cuối",
+                        last_title: "Đi đến trang cuối cùng",
+                        prev: "Trước",
+                        prev_title: "Đi đến trang trước đó",
+                        next: "Sau",
+                        next_title: "Đi đến trang sau đó",
+                        page_size: "Hiển thị",
+                    },
+                },
+            },
+       
+            //ajaxLoaderLoading: "<div class=\"spinner-grow text-primary\" role=\"status\"><span class=\"sr-only\">Loading...</span></div >"
+            footerElement: "<span id='row-count' class='float-left'></span>", //add element element to footer to contain count
+            ajaxResponse: function (url, params, response) {
+                //url - the URL of the request //params - the parameters passed with the request //response - the JSON object returned in the body of the response.
+                $("#row-count").text(`Tổng số bản ghi: ${response.pagination.totalItemsCount}`);
+                return response; //return the tableData property of a response json object
+            }
+        });
+    return tableTabulator;
+};

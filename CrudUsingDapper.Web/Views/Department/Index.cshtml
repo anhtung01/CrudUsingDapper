@@ -1,0 +1,285 @@
+﻿@*<table id="datatable" class="table table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Department Name</th>
+            <th>Description</th>
+            <th style="width:150px">Use State</th>
+            <th>Create Date</th>
+            <th>Create By</th>
+            <th>Modified Date</th>
+            <th>Modified By</th>
+            <th colspan="2" style="text-align:center" width="80px">Action</th>
+        </tr>
+    </thead>
+    <tbody id="body"></tbody>
+</table>*@
+
+<div class="content">
+    <div>
+        <div style="width:300px;font-size:30px;float:left">
+            <p>Quản lí bộ phận </p>
+        </div>
+        <div style="width:500px;float:right;padding:10px">
+            <button class="btn btn-info" id="btnadd" onclick="addnew()">Add <i class="glyphicon glyphicon-plus"></i></button>
+            <button class="btn btn-danger"><i class="fa fa-trash-o" aria-hidden="true">&nbsp;Xóa</i></button>
+            <button class="btn btn-primary"><i class="fa fa-download" aria-hidden="true">&nbsp;Nhập liệu</i></button>
+            <button class="btn btn-success"><i class="fa fa-print" aria-hidden="true">&nbsp;Xuất dữ liệu</i></button>
+            <button class="btn btn-warning"><i class="fa fa-ellipsis-v" aria-hidden="true">&nbsp;Khác</i></button>
+        </div>
+    </div>
+    <div style="width:450px;float:right;margin-top:10px">
+        <form class="example" action="action_page.php">
+            <input type="text" placeholder="Tìm kiếm" name="search" style="width:300px;height:37px">
+            <button style="width:80px;" class="btn btn-outline-success" type="submit"><i class="fa fa-search"></i></button>
+        </form>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-striped custom-table" style="margin-top:10px;">
+            <thead>
+                <tr>
+                    <th style="width:auto">
+                        <label class="control control--checkbox">
+                            <input type="checkbox" class="js-check-all" />
+                            <i class="control__indicator"></i>
+                        </label>
+                    </th>
+                    <th colspan="4" style="text-align:center;width:70px">Hành động</th>
+                    <th style="width:300px">Tên Bộ Phận</th>
+                    <th style="width:400px">Mô tả</th>
+                    <th style="width:200px">Trạng Thái</th>
+                </tr>
+            </thead>
+            <tbody id="body">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        loaddata();
+    });
+
+    function loaddata() {
+        $.get("https://localhost:44368/api/Department/get-all", function (data) {
+
+            $('#body').html("");
+            let usedStateName;
+            $.each(data, function (i, value) {
+                @*if (value.usedState == 1) {
+                    usedStateName = "Đang hoạt động";
+                } else {
+                    usedStateName = "Đóng";
+                }*@
+                usedStateName = value.usedState == 0 ? "Đang hoạt động" : "Đóng";
+                $("#body").append(
+                    "<tr><td><label class='control control--checkbox'> <input type='checkbox'> <div class='control__indicator'></div> </label></td>" + 
+                    "<td><button onclick=\"getbyid('" + value.id + "')\"> <i class='fa fa-clone' aria-hidden='true'></i></button></td >" +
+                    "<td><button onclick=\"getbyid('" + value.id + "')\"> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></button></td >" +
+                    "<td><button onclick=\"getbyid('" + value.id + "')\"> <i class='fa fa-eye' aria-hidden='true'></i></button></td >" +
+                    "<td><button onclick=\"deletebp('" + value.id + "')\"> <i class='fa fa-trash' aria-hidden='true'></i> </button></td><td>" +
+                    value.departmentName + "</td><td>" +
+                    value.description + "</td><td>" +
+                    usedStateName + "</td></tr>"
+                )
+            });
+        });
+    }
+    @*var data = {
+        page: 1,
+        pageSize: 2,
+        departmentName: ""
+    }
+    function loaddata() {
+        $.ajax({
+            type: "POST",
+            url: "https://localhost:44368/api/Department/Search-Department",
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                //var data = response.data;
+                $('#body').html("");
+                let usedStateName;
+                $.each(data, function (value) {
+                    
+                    usedStateName = value.usedState == 0 ? "Đang hoạt động" : "Đóng";
+                    $("#body").append(
+                        "<tr><td><label class='control control--checkbox'> <input type='checkbox'> <div class='control__indicator'></div> </label></td>" +
+                        "<td><button onclick=\"getbyid('" + value.id + "')\"> <i class='fa fa-clone' aria-hidden='true'></i></button></td >" +
+                        "<td><button onclick=\"getbyid('" + value.id + "')\"> <i class='fa fa-pencil-square-o' aria-hidden='true'></i></button></td >" +
+                        "<td><button onclick=\"getbyid('" + value.id + "')\"> <i class='fa fa-eye' aria-hidden='true'></i></button></td >" +
+                        "<td><button onclick=\"deletebp('" + value.id + "')\"> <i class='fa fa-trash' aria-hidden='true'></i> </button></td><td>" +
+                        data.departmentName + "</td><td>" +
+                        value.description + "</td><td>" +
+                        usedStateName + "</td></tr>"
+                    )
+                });
+            }
+        });
+    }*@
+    
+    function addnew() {
+        var objectDepartment = {};
+        objectDepartment.departmentName = $("#edepartmentName").val();
+        objectDepartment.description = $("#edescription").val();
+        objectDepartment.usedState = parseInt($("#eusedState").val());
+        objectDepartment.createBy = $("#ecreateBy").val();
+        $("#add").modal("show");
+    }
+    function add() {
+        var objectDepartment = {};
+        objectDepartment.departmentName = $("#edepartmentName").val();
+        objectDepartment.description = $("#edescription").val();
+        objectDepartment.usedState = parseInt($("#eusedState").val());
+        objectDepartment.createBy = $("#ecreateBy").val();
+        var data = JSON.stringify(objectDepartment);
+        $.ajax({
+            type: "POST",
+            url: "https://localhost:44368/api/Department/create-department",
+            data: data,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data1) {
+                $("#add").modal("hide");
+                alert("Create successful");
+                loaddata();
+                resetform();
+            },
+            error: function (xx) {
+                alert("Create failed!!!")
+            },
+        });
+    }
+    function resetform(){
+        $('#edepartmentName').val('');
+        $('#edescription').val(''); 
+    }
+    var id = "";
+    function getbyid(DepartmentId) {
+        $.ajax({
+            url: ("https://localhost:44368/api/Department/get-by-id/" + DepartmentId),
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                id = data.id;
+                $("#edepartmentName1").val(data.departmentName);
+                $("#edescription1").val(data.description);
+                $("#eusedState1").val(data.usedState);
+                $("#edit").modal("show");
+            }
+        });
+    }
+    function edit() {
+        var objectDepartment = {};
+        objectDepartment.id = id;
+        objectDepartment.departmentName = $("#edepartmentName1").val();
+        objectDepartment.description = $("#edescription1").val();
+        objectDepartment.usedState = parseInt($("#eusedState1").val());
+        var data = JSON.stringify(objectDepartment);
+        console.log(data);
+        $.ajax({
+            type: "PUT",
+            url: ("https://localhost:44368/api/Department/update-department"),
+            data: data,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data1) {
+                $("#edit").modal("hide");
+                alert("Update successful");
+                loaddata();
+                resetform();
+            },
+            error: function (xx) {
+                alert("Update failed!!!")
+            },
+        });
+    }
+    function deletebp(DepartmentId) {
+        var x = confirm("Are you sure you want to delete?");
+        if (x) {
+            $.ajax({
+                url: ("https://localhost:44368/api/Department/delete-department/" + DepartmentId),
+                type: 'DELETE',
+                success: function (result) {
+                    alert("Xóa thành công");
+                    loaddata();
+                }
+            });
+        } 
+    }
+</script>
+@*Thêm thong tin*@
+<div class="modal" id="add">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">Department Name :</div>
+                    <div class="col-md-8"><input id="edepartmentName" type="text" /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Description :</div>
+                    <div class="col-md-8"><input id="edescription" type="text" /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="cars">Used State :</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="eusedState">
+                            <option value="0">Đang hoạt động</option>
+                            <option value="1">Đóng</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="add()">Save</button>
+                <button class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@*Sửa thong tin*@
+<div class="modal" id="edit">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="close" data-dismiss="modal">&times;</button>
+           
+            </div>
+            <div class="modal-body">
+                <div class="row" id="sdid">
+                    <div class="col-md-4">Department Name :</div>
+                    <div class="col-md-8"><input id="edepartmentName1" type="text" /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Description :</div>
+                    <div class="col-md-8"><input id="edescription1" type="text" /></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="cars">Used State :</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="eusedState1">
+                            <option value="0">Đang hoạt động</option>
+                            <option value="1">Đóng</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="edit()">Save</button>
+                <button class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
